@@ -1,5 +1,6 @@
 (() => {
 	const leaflet = document.querySelector('.leaflet');  // '.leaflet' 요소를 찾음
+	const pageElems = document.querySelectorAll('.page')
 	let pageCount = 0;  // 페이지를 넘긴 횟수를 저장하는 변수
 
 	// 특정 클래스가 포함된 부모 요소를 찾는 함수
@@ -16,6 +17,15 @@
 		}
 
 		return elem;  // 클래스가 있는 요소를 반환
+	}
+
+	function closeLeaflet() {
+		pageCount = 0
+		document.body.classList.remove('leaflet-opened')
+		pageElems[2].classList.remove('page-flipped')
+		setTimeout(() => {
+			pageElems[0].classList.remove('page-flipped')
+		}, 500);
 	}
 
 	// leaflet 요소에 클릭 이벤트 리스너 추가
@@ -37,6 +47,11 @@
 		} else {
 			// 'page' 클래스가 없을 경우 출력
 			console.log("Page element with class 'page' not found.");
+		}
+
+		let closeBtnElem = getTarget(e.target, 'close-btn')
+		if (closeBtnElem) {
+			closeLeaflet()
 		}
 	});
 })();
