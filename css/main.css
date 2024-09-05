@@ -20,6 +20,7 @@ body {
 	width: 30vw;
 	height: 30vw;
 	margin: auto;
+	transition: 1s;
 
 	/* 3D 적용이되도록 단계별로 넣어야할 속성이다. */
 	transform-style: preserve-3d;
