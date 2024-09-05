@@ -3,6 +3,7 @@
 	const leaflet = document.querySelector('.leaflet');  // '.leaflet' 요소를 선택
 	const pageElems = document.querySelectorAll('.page');  // 모든 '.page' 요소를 선택
 	let pageCount = 0;  // 페이지를 넘긴 횟수를 저장하는 변수
+	let currentMenu;  // 현재 선택된 메뉴 항목을 저장하는 변수
 
 	// ================== 액션 함수 =======================
 
@@ -18,7 +19,6 @@
 				return null;
 			}
 		}
-
 		return elem;  // 클래스가 있는 요소를 반환
 	}
 
@@ -39,7 +39,6 @@
 		const dy = window.innerHeight / 2 - (rect.y + rect.height / 2);  // Y축 이동 거리 계산
 
 		let angle;  // 회전 각도 정의
-		//* 1을 곱해 문자열을 숫자로 변환
 		switch (elem.parentNode.parentNode.parentNode.dataset.page * 1) {
 			case 1:
 				angle = -30;  // 첫 번째 페이지의 각도
@@ -54,8 +53,21 @@
 				break;
 		}
 
-		// leaflet을 중앙으로 이동하고 확대, Y축 회전 적용
-		leaflet.style.transform = `translate3d(${dx}px, ${dy}px, 70vw) rotateY(${angle}deg)`;
+		// 확대 상태 적용
+		document.body.classList.add('zoom-in');
+		leaflet.style.transform = `translate3d(${dx}px, ${dy}px, 50vw) rotateY(${angle}deg)`;  // 중앙으로 이동 및 확대
+		currentMenu = elem;  // 현재 메뉴 항목을 저장
+		currentMenu.classList.add('current-menu');  // 현재 메뉴 항목에 클래스 추가
+	}
+
+	// 확대된 상태를 원래대로 되돌리는 함수
+	function zoomOut() {
+		leaflet.style.transform = 'translate3d(0, 0, 0)';  // 원래 위치로 복귀
+		if (currentMenu) {
+			document.body.classList.remove('zoom-in');  // 확대 상태 해제
+			currentMenu.classList.remove('current-menu');  // 현재 메뉴 항목에서 클래스 제거
+			currentMenu = null;  // 현재 메뉴 항목 초기화
+		}
 	}
 
 	// ==================== 핸들러 함수 =================
@@ -67,8 +79,7 @@
 
 		// pageElem이 존재하는 경우
 		if (pageElem) {
-			// 'page-flipped' 클래스를 추가하여 페이지 넘기기
-			pageElem.classList.add("page-flipped");
+			pageElem.classList.add("page-flipped");  // 'page-flipped' 클래스를 추가하여 페이지 넘기기
 			pageCount++;  // 넘긴 페이지 수 증가
 
 			// 두 번 넘긴 경우, 'leaflet-opened' 클래스를 body에 추가
@@ -76,20 +87,26 @@
 				document.body.classList.add('leaflet-opened');
 			}
 		} else {
-			// 'page' 클래스가 없을 경우 출력
-			console.log("Page element with class 'page' not found.");
+			console.log("Page element with class 'page' not found.");  // 'page' 클래스가 없을 경우 출력
 		}
 
-		// 'close-btn' 클래스를 클릭하면 리플릿 닫기
+		// 'close-btn' 클릭 시 리플릿 닫기
 		let closeBtnElem = getTarget(e.target, 'close-btn');
 		if (closeBtnElem) {
 			closeLeaflet();  // 리플릿을 닫음
+			zoomOut();  // 확대 상태 해제
 		}
 
 		// 'menu-item' 클릭 시 확대 실행
 		let menuItemElem = getTarget(e.target, 'menu-item');
 		if (menuItemElem) {
 			zoomIn(menuItemElem);  // 메뉴 항목을 확대
+		}
+
+		// 'back-btn' 클릭 시 확대 해제
+		let backBtn = getTarget(e.target, 'back-btn');
+		if (backBtn) {
+			zoomOut();  // 확대 상태 해제
 		}
 	});
 })();
